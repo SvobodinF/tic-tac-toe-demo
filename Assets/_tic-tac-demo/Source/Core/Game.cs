@@ -10,15 +10,18 @@ public class Game
     private readonly Player _firstPlayer;
     private readonly Player _secondPlayer;
     private readonly Board _board;
+    private readonly SceneLoader _sceneLoader;
 
     private Player _currentPlayer;
     private Player _winner;
+    private bool _isTie;
 
-    public Game(Player firstPlayer, Player secondPlayer, Board board)
+    public Game(Player firstPlayer, Player secondPlayer, Board board, SceneLoader sceneLoader)
     {
         _firstPlayer = firstPlayer;
         _secondPlayer = secondPlayer;
         _board = board;
+        _sceneLoader = sceneLoader;
 
         _currentPlayer = firstPlayer;
         _currentPlayer.SetCurrent(true);
@@ -43,7 +46,7 @@ public class Game
         if (player != _currentPlayer)
             return;
 
-        if (_winner != null)
+        if (_winner != null || _isTie)
             return;
 
         Select(cellIndex);
@@ -51,17 +54,23 @@ public class Game
         FlipPlayers(player);
     }
 
-    private void FlipPlayers(Player currentPlayer)
+    public void Restart()
     {
-        if (_winner != null)
+        if (_winner == null && _isTie == false)
             return;
 
-        Debug.Log($"Current: {_currentPlayer.Name}");
+        _sceneLoader.LoadScene(SceneNameContainer.GAMEPLAY);
+    }
+
+    private void FlipPlayers(Player currentPlayer)
+    {
+        if (_winner != null || _isTie)
+            return;
+
         _currentPlayer.SetCurrent(false);
 
         _currentPlayer = currentPlayer == _firstPlayer ? _secondPlayer : _firstPlayer;
 
-        Debug.Log($"Next: {_currentPlayer.Name}");
         _currentPlayer.SetCurrent(true);
         OnPlayerSwitchedEvent?.Invoke(_currentPlayer);
     }
@@ -78,10 +87,10 @@ public class Game
     private void CheckIsMatchEnd(MarkStatus status)
     {
         bool isWin = _board.CheckFullLine(status);
-        bool isTie = _board.IsAllFilled();
+        _isTie = _board.IsAllFilled();
         MatchResultStatus matchResultStatus = MatchResultStatus.PLAYING;
 
-        if (isWin == false && isTie == false)
+        if (isWin == false && _isTie == false)
             return;
 
         if (isWin == true)
@@ -90,8 +99,8 @@ public class Game
             Debug.Log($"{_currentPlayer.Name} is WINNER");
             matchResultStatus = MatchResultStatus.WIN;
         }
-        else
-        if (isTie == true)
+        
+        if (_isTie == true)
         {
             matchResultStatus = MatchResultStatus.TIE;
         }

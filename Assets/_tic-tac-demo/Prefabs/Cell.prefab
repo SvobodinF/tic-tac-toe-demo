@@ -91,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 248522198568696232}
+  _animationDuration: 0.5
 --- !u!1 &248522198568696234
 GameObject:
   m_ObjectHideFlags: 0

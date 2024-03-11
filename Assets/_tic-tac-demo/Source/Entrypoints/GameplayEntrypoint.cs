@@ -5,6 +5,9 @@ public class GameplayEntrypoint : Entrypoint
     [Header("Viewport")]
     [SerializeField] private BoardScreen _boardScreen;
     [SerializeField] private ScoreScreen _scoreScreen;
+    [SerializeField] private LineContainer _lineContainer;
+    [SerializeField] private ActivePlayerScreen _activePlayerScreen;
+    [SerializeField] private FinalScreen _finalScreen;
 
     [Header("Prefabs")]
     [SerializeField] private Cell _cellPrefab;
@@ -15,13 +18,14 @@ public class GameplayEntrypoint : Entrypoint
     private void Start()
     {
         IStorage storage = new PlayerPrefsStorage();
+        SceneLoader sceneLoader = new SceneLoader();
 
         Player firstPlayer = new User("Player 1", _userIconContainer);
         //Player secondPlayer = new User("Player 2");
         Player secondPlayer = new PC(_userIconContainer);
 
         Board board = new Board(3);
-        Game game = new Game(firstPlayer, secondPlayer, board);
+        Game game = new Game(firstPlayer, secondPlayer, board, sceneLoader);
 
         UserInput firstUserInput = new UserInput(game, firstPlayer);
         AIInput secondUserInput = new AIInput(secondPlayer, game, board);
@@ -34,6 +38,9 @@ public class GameplayEntrypoint : Entrypoint
 
         _boardScreen.Init(board, new UserInput[]{ firstUserInput }, _cellPrefab);
         _scoreScreen.Init(firstPlayerInfo, secondPlayerInfo);
+        _lineContainer.Init(board);
+        _activePlayerScreen.Init(firstPlayer, secondPlayer, game);
+        _finalScreen.Init(game);
 
         firstScore.Init();
         secondScore.Init();

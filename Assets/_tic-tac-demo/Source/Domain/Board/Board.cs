@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 
 public class Board
 {
+    public event Action<int, LineDirection> OnLineMatchedEvent;
+
     public readonly int MatrixSize;
 
     private readonly Mark[] _marks;
@@ -70,7 +73,10 @@ public class Board
             }
 
             if (matchCount == size)
+            {
+                OnLineMatchedEvent?.Invoke(i, LineDirection.HORIZONTAL);
                 return true;
+            }
         }
 
         return false;
@@ -94,7 +100,10 @@ public class Board
             }
 
             if (matchCount == size)
+            {
+                OnLineMatchedEvent?.Invoke(i, LineDirection.VERTICAL);
                 return true;
+            }
         }
 
         return false;
@@ -131,7 +140,11 @@ public class Board
             }
 
             if (mainDiagonalMatchCount == size || secondDiagonalMatchCount == size)
+            {
+                int index = mainDiagonalMatchCount == size ? 0 : 1;
+                OnLineMatchedEvent?.Invoke(index, LineDirection.DIAGONAL);
                 return true;
+            }
         }
 
         return false;
