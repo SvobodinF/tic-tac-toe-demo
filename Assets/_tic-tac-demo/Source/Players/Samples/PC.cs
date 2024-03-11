@@ -1,6 +1,6 @@
 public class PC : Player
 {
-    public PC() : base("PC")
+    public PC(UserIconContainer userIconContainer) : base("PC", userIconContainer)
     {
     }
 

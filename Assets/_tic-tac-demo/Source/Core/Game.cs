@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Game
 {
+    public Action<Player, MatchResultStatus> OnMatchEndEvent;
     public Action<Player> OnPlayerSwitchedEvent;
 
     private readonly Player _firstPlayer;
@@ -21,6 +22,17 @@ public class Game
 
         _currentPlayer = firstPlayer;
         _currentPlayer.SetCurrent(true);
+    }
+
+    public MarkStatus GetStatus(Player player)
+    {
+        if (player == _firstPlayer)
+            return MarkStatus.X;
+
+        if (player == _secondPlayer)
+            return MarkStatus.O;
+
+        return MarkStatus.EMPTY;
     }
 
     public async void Turn(Player player, int cellIndex)
@@ -60,31 +72,30 @@ public class Game
 
         Mark mark = _board.GetMarkByIndex(index);
         mark.ChangeMarkStatus(status);
+        CheckIsMatchEnd(status);
+    }
+
+    private void CheckIsMatchEnd(MarkStatus status)
+    {
         bool isWin = _board.CheckFullLine(status);
         bool isTie = _board.IsAllFilled();
+        MatchResultStatus matchResultStatus = MatchResultStatus.PLAYING;
+
+        if (isWin == false && isTie == false)
+            return;
 
         if (isWin == true)
         {
             _winner = _currentPlayer;
             Debug.Log($"{_currentPlayer.Name} is WINNER");
-            return;
+            matchResultStatus = MatchResultStatus.WIN;
         }
-
+        else
         if (isTie == true)
         {
-            Debug.Log("game is TIE");
+            matchResultStatus = MatchResultStatus.TIE;
         }
 
-    }
-
-    public MarkStatus GetStatus(Player player)
-    {
-        if (player == _firstPlayer)
-            return MarkStatus.X;
-
-        if (player == _secondPlayer)
-            return MarkStatus.O;
-
-        return MarkStatus.EMPTY;
+        OnMatchEndEvent.Invoke(_winner, matchResultStatus);
     }
 }
